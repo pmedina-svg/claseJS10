@@ -31,6 +31,12 @@ if (nombreGuardado) {
 }
 
 function mostrarBienvenida() {
+    Toastify({
+        text: "Cargando destinos",
+        duration: 2000,
+        className: "info",
+    }).showToast();
+
   try {
     const bienvenidaVista = localStorage.getItem("bienvenidaVista");
 

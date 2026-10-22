@@ -42,6 +42,14 @@ h3 {
     font-family: "Space Grotesk", sans-serif;
 }
 
+/*CSS Toastify*/
+
+.toastify.info {
+    font-size: 1.2rem;
+    background: #0383dd;
+    box-shadow: none;
+}
+
 /* INTRO */
 
 #intro {
