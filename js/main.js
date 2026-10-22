@@ -192,7 +192,8 @@ async function getViajesEspaciales() {
     Swal.fire({
         icon: "error",
         title: "Error de carga",
-        text: "No se pudieron cagar los destinos"
+        text: "No se pudieron cagar los destinos",
+        heightAuto: false,
     });
 
   }
