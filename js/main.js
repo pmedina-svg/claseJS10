@@ -172,16 +172,27 @@ verSesion.addEventListener("click", function(){
 //     { destino: "Eris", url: "./assets/eris.webp", distancia: 10100000000, velocidad: 100000, categoria: "Planeta Enano", mensaje: "Eris está tan lejos del Sol que su temperatura puede bajar hasta unos -230 °C. Espero que hayas llevado un buen abrigo." },
 // ];
 
-const url = "./db/data.json"
+const url = "./db/data.json";
 
-function dbViajesEspaciales(){
-    fetch (url)
-    .then(response => response.json())
-    .then(data => renderDestinos(data))
-    .catch(e => console.log("Hubo un error", e))
+async function getViajesEspaciales(){
+
+    try{
+
+        const response = await fetch(url);
+        const data = await response.json();
+        console.log("datos recibidos: ", data);
+
+        viajesEspaciales = data;
+
+        mostrarDestinos(viajesEspaciales.filter(viaje => viaje.categoria === "Planeta"));
+
+    } catch(e){
+        console.error("Hubo un error", e);
+    }
+
 }
 
-dbViajesEspaciales();
+getViajesEspaciales();
 
 
 // const misionesLanzadas = [];
@@ -421,4 +432,4 @@ function mostrarDestinos(destinos){
     });
 }
 
-mostrarDestinos(viajesEspaciales.filter(viaje => viaje.categoria === "Planeta"));
+// mostrarDestinos(viajesEspaciales.filter(viaje => viaje.categoria === "Planeta"));
