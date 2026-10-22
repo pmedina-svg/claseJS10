@@ -1,3 +1,5 @@
+const url = "./db/data.json";
+
 const registroSesion = document.querySelector("#intro");
 const astronauta = document.querySelector("#intro input");
 const inicioSession = document.querySelector("#intro form");
@@ -40,6 +42,7 @@ function mostrarBienvenida() {
       }, 3000);
     } else {
       contenidoSimulador.style.display = "block";
+      getViajesEspaciales();
     }
   } catch (e) {
     console.error("Error capturado por catch:", e);
@@ -157,7 +160,6 @@ verSesion.addEventListener("click", function () {
 
 /* Llamado a la DB */
 
-const url = "./db/data.json";
 
 let viajesEspaciales = [];
 
@@ -180,6 +182,8 @@ async function getViajesEspaciales() {
         title: "¡Destinos listos!",
         text: "Los destinos espaciales se cargaron correctamente.",
         confirmButtonText: "Continuar",
+        heightAuto: false,
+
     });
 
   } catch (e) {
