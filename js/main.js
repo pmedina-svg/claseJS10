@@ -1,0 +1,413 @@
+const registroSesion = document.querySelector("#intro");
+const astronauta = document.querySelector("#intro input");
+const inicioSession = document.querySelector("#intro form");
+const nombreSesion = document.querySelector(".datos-perfil span")
+const modalBienvenida = document.querySelector(".modalBienvenida");
+const contenidoSimulador = document.querySelector("#contenidoSimulador");
+const iniciarSimulador = document.querySelector("#iniciarSimulador");
+
+
+inicioSession.addEventListener("submit", function(event){
+    event.preventDefault();
+    const nombreAstronauta = astronauta.value;
+    localStorage.setItem('Astronauta', nombreAstronauta);
+    const nombreRegistrado = localStorage.getItem('Astronauta');
+    nombreSesion.innerHTML = nombreRegistrado;
+    nombreUsuario.innerHTML = nombreRegistrado;
+    registroSesion.style.display = "none";
+
+    mostrarBienvenida();
+});
+
+
+const nombreGuardado = localStorage.getItem("Astronauta");
+const nombreUsuario = document.querySelector("#nombreUsuario");
+
+if (nombreGuardado){
+    nombreSesion.innerHTML = nombreGuardado;
+    nombreUsuario.innerHTML = nombreGuardado;
+    registroSesion.style.display = "none";
+    mostrarBienvenida();
+}
+
+function mostrarBienvenida(){
+    try{
+        const bienvenidaVista = localStorage.getItem("bienvenidaVista");
+        
+        if(!bienvenidaVista){
+            document.body.classList.add("mostrandoCarga");
+
+            setTimeout(function(){
+                modalBienvenida.style.display="flex";
+            }, 3000);
+        }
+        else{
+            contenidoSimulador.style.display = "block";
+        }
+    }
+    catch(e){
+        console.error("Error capturado por catch:", e);
+        document.body.classList.remove("mostrandoCarga");
+        
+    }
+    finally{
+        console.log("Bienvenida Finalizada");
+    }
+};
+
+iniciarSimulador.addEventListener("click", function(){
+    modalBienvenida.style.display="none";
+    contenidoSimulador.style.display = "block";
+    localStorage.setItem('bienvenidaVista', 'bienvenidaCheck');
+    localStorage.getItem('bienvenidaVista');
+});
+
+
+const verSesion = document.querySelector("#perfil");
+
+verSesion.addEventListener("click", function(){
+    const totalKm = misionesLanzadas.reduce((total, mision) => total + mision.distancia, 0);
+    const totalTiempo = misionesLanzadas.reduce((total, mision) => total + mision.distancia/ mision.velocidad, 0);
+    const modalSesion = document.querySelector(".modalSesion");
+    modalSesion.innerHTML = `<div class="modal">
+                            <button>X</button>
+                            <img src="./assets/avatar.webp" alt="imagen astronauta">
+                            <div class="datos-perfil">
+                            <h2>Astronauta: <span>${localStorage.getItem("Astronauta")}</span></h2>
+                            <ul>
+                                <li>Total Misiones: ${misionesLanzadas.length > 0 ? misionesLanzadas.length : 0}</li>
+                                <li>Kilometros recorridos: ${totalKm > 0 ? totalKm : 0} km</li>
+                                <li>Tiempo de viaje: ${totalTiempo > 0 ? convertirDuracion(totalTiempo) : 0}</li>
+                            </ul>
+                            <a><p>cerrar sesion</p></a>
+                            </div>
+                            </div>`;
+    modalSesion.style.display = "flex";
+
+    const cerrarModal = modalSesion.querySelector("button");
+    cerrarModal.addEventListener("click", function(){
+        modalSesion.style.display = "none";
+    });
+
+    
+    const cerrarSesion = modalSesion.querySelector("a");
+    const modalConfirmacion = document.querySelector(".modalConfirmacion");
+    modalConfirmacion.innerHTML = `<div class="modal">
+    <p>¿Estás seguro de que quieres cerrar sesión?</p>
+    <div class="modal-opciones">
+    <button class="confirmarCierre">Sí</button>
+    <button class="cancelarCierre">Cancelar</button>
+    </div>
+    <p class="cierreAutomatico">Cancelación automatica en: <span>10</span>s</p>
+    </div>`;
+    
+    const cancelarCierre = modalConfirmacion.querySelector("button.cancelarCierre");
+    const confirmarCierre = modalConfirmacion.querySelector(".confirmarCierre");
+
+    
+    /* Contador de cuenta regresiva usando tiempos setInterval y setTimeout */
+
+    cerrarSesion.addEventListener("click", function(){
+        modalConfirmacion.style.display = "flex";
+
+        const confirmacionCierre = new Promise((resolve, reject) => {
+            
+            let tiempoCierre = 10;
+            const contador = modalConfirmacion.querySelector(".cierreAutomatico span");
+
+            contador.textContent = tiempoCierre;
+
+            const intervaloSegundos = setInterval(() => {
+                tiempoCierre--;
+                contador.textContent = tiempoCierre;
+            }, 1000);
+
+            const intervaloConfirmacion = setTimeout(() =>{
+                clearInterval(intervaloSegundos);
+                modalConfirmacion.style.display = "none";
+                resolve(false);
+            }, 10000);
+
+            function finalizarCierre(estadoConfirmacion){
+                clearTimeout(intervaloConfirmacion);
+                clearInterval(intervaloSegundos);
+                resolve(estadoConfirmacion);
+            }
+            
+            cancelarCierre.addEventListener("click", function(){
+                modalConfirmacion.style.display = "none";
+                finalizarCierre(false);
+            });
+
+            confirmarCierre.addEventListener("click", function(){
+                finalizarCierre(true);
+            });
+        });
+        
+        confirmacionCierre.then(data => {
+            if(data){
+                localStorage.clear();
+                location.reload();
+            }
+        });
+
+    });
+    
+    
+});
+
+
+
+const viajesEspaciales = [
+    { destino: "Luna", url: "./assets/luna.webp", distancia: 384400, velocidad: 40000, categoria: "Satelite", mensaje: "No saltes tanto, porque en la Luna pesas 6 veces menos que en la Tierra." },
+    { destino: "Marte", url: "./assets/marte.webp", distancia: 225000000, velocidad: 60000, categoria: "Planeta", mensaje: "¿Sabías que en Marte un día dura casi lo mismo que en la Tierra? Exactamente 24 horas y 39 minutos." },
+    { destino: "Venus", url: "./assets/venus.webp", distancia: 41000000, velocidad: 40000, categoria: "Planeta", mensaje: "Bienvenido a Venus, ponte bloqueador porque es el planeta más caliente del Sistema Solar." },
+    { destino: "Jupiter", url: "./assets/jupiter.webp", distancia: 628000000, velocidad: 50000, categoria: "Planeta", mensaje: "Júpiter es tan grande que cabrían más de mil Tierras dentro de él." },
+    { destino: "Saturno", url: "./assets/saturno.webp", distancia: 1280000000, velocidad: 80000, categoria: "Planeta", mensaje: "Saturno es famoso por sus impresionantes anillos formados principalmente por hielo y roca." },
+    { destino: "Europa", url: "./assets/europa.webp", distancia: 628000000, velocidad: 80000, categoria: "Satelite", mensaje: "Europa es una de las lunas de Júpiter y los científicos creen que podría tener un océano bajo su superficie, llevaste caña de pescar?" },
+    { destino: "Titan", url: "./assets/titan.webp", distancia: 1280000000, velocidad: 80000, categoria: "Satelite", mensaje: "Titán tiene una atmósfera muy densa y lagos de metano líquido en su superficie, no te tires al agua."},
+    { destino: "Pluton", url: "./assets/pluton.webp", distancia: 5900000000, velocidad: 100000, categoria: "Planeta Enano", mensaje: "Plutón fue considerado un planeta hasta 2006, cuando pasó a ser clasificado como planeta enano o como Satélite, ya no recuerdo bien." },
+    { destino: "Sol", url: "./assets/sol.webp", distancia: 149600000, velocidad: 120000, categoria: "Estrella", mensaje: "¡Cuidado! no debiste ir a allí, te confiaste demasiado" },
+    { destino: "Ganimedes", url: "./assets/ganimedes.webp", distancia: 628000000, velocidad: 80000, categoria: "Satelite", mensaje: "¿Sabías que Ganimedes es la luna más grande del Sistema Solar? Incluso es más grande que Mercurio." },
+    { destino: "Ceres", url: "./assets/ceres.webp", distancia: 414000000, velocidad: 50000, categoria: "Planeta Enano", mensaje: "Cuidado con aterrizar! Ceres tiene una montaña de unos 4.000 metros de altura y está cubierto de cráteres." },
+    { destino: "Eris", url: "./assets/eris.webp", distancia: 10100000000, velocidad: 100000, categoria: "Planeta Enano", mensaje: "Eris está tan lejos del Sol que su temperatura puede bajar hasta unos -230 °C. Espero que hayas llevado un buen abrigo." },
+];
+
+// const misionesLanzadas = [];
+let misionesLanzadas = JSON.parse(localStorage.getItem("misiones")) || [];
+
+
+// // funcion para convertir el calculo de horas a años - dias - horas
+function convertirDuracion(horasTotales){
+    const horasAnio = 365 * 24;
+    const anios = parseInt(horasTotales / horasAnio);
+    const horasRestantes = horasTotales % horasAnio;
+    const dias = parseInt(horasRestantes / 24);
+    const horas = parseInt(horasRestantes % 24);
+    
+    return anios + " años, " + dias + " días y " + horas + " horas";
+}
+
+const contenedorCategorias = document.querySelector("#listaCategorias");
+const contenedorDestinos = document.querySelector("#listaDestinos");
+const configuracion = document.querySelector(".configuracionDestino");
+const controles = document.querySelector(".controlVelocidad");
+const contadorMisiones = document.querySelector("tbody");
+const modalMision = document.querySelector(".modalMision");
+
+
+// en function mostrarMision presenté muchas dificultades: 1. al eliminar o me eliminaba el último desde cualquier button, o dejaban de funcionar los botones en todos los TR menos en el último. solución: crear id, pero, eso no fue suficiente, ya que para que al eliminar no borrara el ultimo tuve que no incluir en tr.mision-id dentro del innerHTML sino que por separado. 2. repetición de IDS: una vez logrado el eliminar por id ocurrio lo siguiente, teniendo id=1, 2, 3, 4, eliminaba ids 2 y 4, refrescaba, volvia a lanzar misiones y se me repetian id 3 (que ya existia porque no habia eliminado anteriormente). Solución: tras varios intentos investigué y encontré Date.now() que genera id unicos con fecha y hora (milisegundos).
+
+function mostrarMision({id, destino, velocidad, distancia, duracion}){
+        
+    const historialMisiones = document.createElement("tr");
+    historialMisiones.className = `mision-${id}`;
+    historialMisiones.innerHTML = `<td>${destino}</td>
+                                   <td>${velocidad}</td>
+                                   <td>${distancia}</td>
+                                   <td>${duracion}</td>
+                                   <td><button class="btn-eliminar"><img src="./assets/trash-can.png"></button></td>`;
+    
+    contadorMisiones.appendChild(historialMisiones);
+    
+    const botonEliminar = historialMisiones.querySelector(".btn-eliminar");
+    
+    botonEliminar.addEventListener("click", function(){
+        misionesLanzadas = misionesLanzadas.filter(mision => mision.id !== id);
+        localStorage.setItem("misiones", JSON.stringify(misionesLanzadas));
+        
+        historialMisiones.remove(); 
+    });
+}
+
+misionesLanzadas.forEach(nuevaMision => {
+    mostrarMision(nuevaMision);
+});
+
+contenedorCategorias.innerHTML= `<button class="activo">Planeta</button>
+                                <button>Planeta Enano</button>
+                                <button>Satelite</button>
+                                <button>Estrella</button>`;
+
+const botonesCategorias = contenedorCategorias.querySelectorAll("button");
+
+botonesCategorias.forEach(boton =>{
+    boton.addEventListener("click", function(){
+
+        botonesCategorias.forEach(boton => boton.classList.remove("activo"));
+        boton.classList.add("activo");
+        
+
+        const categoriaSeleccionada = boton.textContent.toLowerCase();
+        const destinosFiltrados = viajesEspaciales.filter(viaje => viaje.categoria.toLowerCase() === categoriaSeleccionada);
+
+        mostrarDestinos(destinosFiltrados);
+    });
+});
+
+
+function mostrarDestinos(destinos){
+    contenedorDestinos.innerHTML = "";
+
+    destinos.forEach(viaje => {
+        let contenedor = document.createElement("div");
+        contenedor.className = "card";
+        contenedor.innerHTML += `<img src="${viaje.url}" alt="${viaje.destino}">
+        <h3>${viaje.destino}</h3>
+        <p>${viaje.categoria}</p>
+        <p><span>${viaje.distancia} km</span></p>
+        <button>Seleccionar</button>
+        `;
+
+        let boton = contenedor.querySelector("button");
+
+        boton.addEventListener("click", function(){
+
+            const duracionConvertido = convertirDuracion(viaje.distancia / viaje.velocidad);
+
+            configuracion.innerHTML = `<h4>Destino Seleccionado: ${viaje.destino}</h4>
+            <div class="info-destino">
+                <div class="col-destino">
+                <img src="${viaje.url}" alt="${viaje.destino}">
+                </div>
+                <div class="col-destino">
+                    <h3>${viaje.destino}</h3>
+                    <p>${viaje.categoria}</p>
+                    <p>Distancia desde la tierra: ${viaje.distancia} km</p>
+                    <p>Velocidad actual: <span class="velocidad">${viaje.velocidad}</span> km/h</p>
+                    <p>Duración del viaje: <span class="duracion">${duracionConvertido}</span></p>
+                </div>
+            </div>`;
+
+            controles.innerHTML = `<p>Velocidad de la nave (km/h)</p>
+                                    <input type="number" value="${viaje.velocidad}">
+                                    <span class="error"></span>
+                                    <div class="opcionesBotones">
+                                    <button>🚀 Lanzar misión</button>
+                                    </div>`
+
+            const inputVelocidad = controles.querySelector("input");
+            const botonLanzar = controles.querySelector("button");
+            const cuentaRegresivaModal = document.querySelector(".modalCuentaRegresiva");
+
+            function validarVelocidad(){
+                
+                const nuevaVelocidad = parseInt(inputVelocidad.value);
+                const mensajeError = controles.querySelector(".error");
+    
+                if (inputVelocidad.value === "" || isNaN(nuevaVelocidad) || nuevaVelocidad <= 0){
+                    mensajeError.textContent = "ingresa una velocidad mayor a 0";
+                    return false;
+                }
+    
+                mensajeError.textContent = "";
+                viaje.velocidad = nuevaVelocidad;
+                return true;
+
+            }
+
+            cuentaRegresivaModal.innerHTML = `<div class="modal">
+                                           <p>Preparando lanzamiento...</p>
+                                           <img src="./assets/preparados.gif" alt="Preparando Lanzamiento" >
+                                           <p class="conteoAutomatico">Lanzamiento en: <span>5</span>s</p>
+                                           <div class="modal-opciones">
+                                           <button class="cancelarCierre">Cancelar lanzamiento</button>
+                                           </div>
+                                           </div>`;
+
+
+            botonLanzar.addEventListener("click", async function(){
+
+                if (!validarVelocidad()){
+                    return;
+                }
+                
+                cuentaRegresivaModal.style.display = "flex";
+
+                const lanzamientoConfirmado = await new Promise((resolve) => {
+                    
+                    let contadorSegundos = 5;
+                    
+                    const contador = cuentaRegresivaModal.querySelector(".conteoAutomatico span");
+                    const cancelarLanzamiento = cuentaRegresivaModal.querySelector(".cancelarCierre");
+                    
+                    contador.textContent = contadorSegundos;
+                    
+                    const intervaloSegundos = setInterval(() => {
+                        contadorSegundos--;
+                        contador.textContent = contadorSegundos;
+                    }, 1000);
+
+                    const tiempoLanzamiento = setTimeout(() =>{
+                        clearInterval(intervaloSegundos);
+                        cuentaRegresivaModal.style.display = "none";
+                        resolve(true);
+                    }, 5000);
+                    
+                    cancelarLanzamiento.addEventListener("click", () => {
+                        clearTimeout(tiempoLanzamiento);
+                        clearInterval(intervaloSegundos);
+                        cuentaRegresivaModal.style.display = "none";
+                        resolve(false);
+                    });
+                    
+                });
+                
+                if(!lanzamientoConfirmado) return;
+                
+                const nuevaMision = {
+                    id: Date.now(),
+                    destino: viaje.destino,
+                    velocidad: viaje.velocidad,
+                    distancia: viaje.distancia,
+                    duracion: convertirDuracion (viaje.distancia / viaje.velocidad)
+                }
+
+                misionesLanzadas.push(nuevaMision);
+                localStorage.setItem("misiones", JSON.stringify(misionesLanzadas));
+
+                mostrarMision(nuevaMision);
+
+
+                modalMision.innerHTML = `<div class="modal">
+                            <img src="./assets/lanzamiento.gif" alt="lanzamiento ${nuevaMision.destino}" >
+                            <h3>misión lanzada con éxito</h3>
+                            <ul>
+                                <li>Destino: ${nuevaMision.destino}</li>
+                                <li>Velocidad: ${nuevaMision.velocidad} </li>
+                                <li>Tiempo de viaje: ${nuevaMision.duracion}</li>
+                            </ul>
+                            <p><strong>Torre de control dice:</strong> "${viaje.mensaje}"</p>
+                            <button>Volver al centro de control</button>
+                        </div>`;
+                modalMision.style.display = "flex";
+
+                const btnVolver = modalMision.querySelector("button");
+
+                btnVolver.addEventListener("click", function(){
+                    modalMision.style.display = "none";
+                });
+
+            });
+
+            inputVelocidad.addEventListener("keyup", function(){
+
+                if (!validarVelocidad()){
+                    return;
+                }
+
+                const duracion = configuracion.querySelector(".duracion");
+                const velocidad = configuracion.querySelector(".velocidad");
+
+                duracion.textContent = convertirDuracion(viaje.distancia / viaje.velocidad);
+                velocidad.textContent = viaje.velocidad;
+            });
+            
+
+        });
+
+        contenedorDestinos.appendChild(contenedor);
+    });
+}
+
+mostrarDestinos(viajesEspaciales.filter(viaje => viaje.categoria === "Planeta"));
