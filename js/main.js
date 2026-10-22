@@ -54,6 +54,8 @@ iniciarSimulador.addEventListener("click", function () {
   contenidoSimulador.style.display = "block";
   localStorage.setItem("bienvenidaVista", "bienvenidaCheck");
   localStorage.getItem("bienvenidaVista");
+
+  getViajesEspaciales();
 });
 
 const verSesion = document.querySelector("#perfil");
@@ -172,6 +174,14 @@ async function getViajesEspaciales() {
     mostrarDestinos(
       viajesEspaciales.filter((viaje) => viaje.categoria === "Planeta"),
     );
+    
+    Swal.fire({
+        icon: "success",
+        title: "¡Destinos listos!",
+        text: "Los destinos espaciales se cargaron correctamente.",
+        confirmButtonText: "Continuar",
+    });
+
   } catch (e) {
     console.error("Hubo un error", e);
     
@@ -182,9 +192,14 @@ async function getViajesEspaciales() {
     });
 
   }
+
+  finally{
+    console.log("Carga finalizada");
+  }
+
 }
 
-getViajesEspaciales();
+// getViajesEspaciales();
 
 // const misionesLanzadas = [];
 let misionesLanzadas = JSON.parse(localStorage.getItem("misiones")) || [];
