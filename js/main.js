@@ -31,11 +31,6 @@ if (nombreGuardado) {
 }
 
 function mostrarBienvenida() {
-    Toastify({
-        text: "Cargando destinos",
-        duration: 2000,
-        className: "info",
-    }).showToast();
 
   try {
     const bienvenidaVista = localStorage.getItem("bienvenidaVista");
@@ -171,6 +166,12 @@ let viajesEspaciales = [];
 
 async function getViajesEspaciales() {
 
+    Toastify({
+        text: "Cargando destinos",
+        duration: 2000,
+        className: "info",
+    }).showToast();
+
   try {
     const response = await fetch(url);
     if (!response.ok) {
@@ -209,8 +210,6 @@ async function getViajesEspaciales() {
   }
 
 }
-
-// getViajesEspaciales();
 
 // const misionesLanzadas = [];
 let misionesLanzadas = JSON.parse(localStorage.getItem("misiones")) || [];
